@@ -1,0 +1,2 @@
+apt-get update && apt-get upgrade -y
+docker-compose -f docker-compose-init.yml up -d --build && docker-compose exec web alembic revision --autogenerate -m "init"  && docker-compose exec web alembic upgrade head

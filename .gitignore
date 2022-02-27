@@ -1,0 +1,9 @@
+*.pyc
+__pycache
+.DS_Store
+project/celerybeat.pid
+project/celerybeat-schedule
+project/logs/celery.log
+*.png
+testing/*
+project/app.yaml
