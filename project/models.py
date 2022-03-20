@@ -163,7 +163,7 @@ class Npcencounter(SQLModel, table=True):
     century: str
     npc: str
     railroader: str
-    reward: int
+    reward: float
     reward_symbol: str
     train: str
     

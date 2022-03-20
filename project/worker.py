@@ -179,6 +179,7 @@ class Builder():
             )
 
         if act["action_trace"]["act"]["name"] == "npcencounter":
+            reward_symbol = act["action_trace"]["act"]["data"]["reward"].split(" ")[1]
             return Npcencounter(
                 trx_id= act["action_trace"]["trx_id"],
                 action_seq= act["account_action_seq"],
@@ -187,8 +188,8 @@ class Builder():
                 century = act["action_trace"]["act"]["data"]["century"],
                 npc = act["action_trace"]["act"]["data"]["npc"],
                 railroader = act["action_trace"]["act"]["data"]["railroader"],
-                reward = int(float(act["action_trace"]["act"]["data"]["reward"].split(" ")[0])*10000),
-                reward_symbol = act["action_trace"]["act"]["data"]["reward"].split(" ")[1],
+                reward = float(act["action_trace"]["act"]["data"]["reward"].split(" ")[0]),
+                reward_symbol = reward_symbol,
                 train = act["action_trace"]["act"]["data"]["train"],
                 
             )

@@ -18,7 +18,7 @@ from fastapi_cache.decorator import cache
 
 app = FastAPI(title="Train Century History API",
         description="made with <3 by green",
-        version="0.1.7",
+        version="0.1.7b",
         openapi_tags=config.tags_metadata)
 
 origins = [
@@ -351,6 +351,7 @@ async def get_aggregated_buyfuels(
             timeframe:int=24,
             simple:bool=True):
     start = time.perf_counter()
+    qry2 = None
 
     with Session(engine) as session:
 
@@ -440,6 +441,7 @@ async def get_raw_logrun_actions(
               station_owner:str=None,
               century:str=None,
               train_name:str=None,
+              trx_id:str=None,
               before:str=None,
               after:str=None,
               before_timestamp:int=None,
@@ -462,6 +464,8 @@ async def get_raw_logrun_actions(
         query = query.where(Logrun.station_owner==station_owner)
     if train_name:
         query = query.where(Logrun.train_name==train_name)
+    if trx_id:
+        query = query.where(Logrun.trx_id==trx_id)
     if century:
         query = query.where(Logrun.century==century)
     if before:
