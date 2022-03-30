@@ -4,6 +4,7 @@ __pycache
 project/celerybeat.pid
 project/celerybeat-schedule
 project/logs/celery.log
+project/migrations/versions/*
 *.png
 testing/*
 project/app.yaml

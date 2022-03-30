@@ -18,7 +18,7 @@ from fastapi_cache.decorator import cache
 
 app = FastAPI(title="Train Century History API",
         description="made with <3 by green",
-        version="0.1.7b",
+        version="0.1.8",
         openapi_tags=config.tags_metadata)
 
 origins = [
@@ -396,6 +396,7 @@ def buildCar(car):
         railcar = car.car[0]
         build["car"]= {
             "name":railcar.template.name,
+            "asset_id":railcar.asset_id,
             "cardid":railcar.template.cardid,
             "size":railcar.template.size,
             "capacity":railcar.template.capacity,
@@ -406,6 +407,7 @@ def buildCar(car):
         }
         build["loads"]= [{
                     "name":load.template.name,
+                    "asset_id":load.asset_id,
                     "cardid":load.template.cardid,
                     "volume":load.template.volume,
                     "weight":load.template.weight,
@@ -416,6 +418,7 @@ def buildCar(car):
         passengercar = car.car[0]
         build["car"]= {
                     "name":passengercar.template.name,
+                    "asset_id":passengercar.asset_id,
                     "cardid":passengercar.template.cardid,
                     "seats":passengercar.template.seats,
                     "weight":passengercar.template.weight,
@@ -423,6 +426,7 @@ def buildCar(car):
         }
         build["loads"]= [{
                     "name":passenger.template.name,
+                    "asset_id":passenger.asset_id,
                     "cardid":passenger.template.cardid,
                     "tip":passenger.template.tip,
                     "criterion":passenger.template.criterion,
@@ -525,6 +529,7 @@ async def get_raw_logrun_actions(
                 "cars": [buildCar(car) for car in trans.cars],
                 "locomotives": [{
                     "name":loc.template.name,
+                    "asset_id":loc.asset_id,
                     "cardid":loc.template.cardid,
                     "speed":loc.template.speed,
                     "distance":loc.template.distance,
@@ -534,6 +539,7 @@ async def get_raw_logrun_actions(
                     "conductor_threshold":loc.template.conductor_threshold} for loc in trans.locomotives],
                 "conductors": [{
                     "name":con.template.name,
+                    "asset_id":con.asset_id,
                     "cardid":con.template.cardid,
                     "conductor_level":con.template.conductor_level,
                     "perk":con.template.perk,
