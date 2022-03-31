@@ -189,6 +189,7 @@ async def get_station_aggregated_and_ordered(
 @cache(expire=5)
 async def get_railroader_dashboard(
             railroader:str=None,
+            train:str=None,
             before:str=None,
             after:str=None,
             timeframe:int=24):
@@ -210,6 +211,8 @@ async def get_railroader_dashboard(
                         )
         if railroader:
             qry = qry.filter(Logrun.railroader==railroader)
+        if train:
+            qry = qry.filter(Logrun.train_name==train)
         if before:
             qry = qry.filter(Logrun.block_time<=before)
         if after:
