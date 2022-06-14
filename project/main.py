@@ -18,7 +18,7 @@ from fastapi_cache.decorator import cache
 
 app = FastAPI(title="Train Century History API",
         description="made with <3 by green",
-        version="0.1.8",
+        version="0.1.8a",
         openapi_tags=config.tags_metadata)
 
 origins = [
@@ -645,6 +645,7 @@ async def get_raw_npcecnounter_actions(
                 railroader:str=None,
                 train:str=None,
                 century:str=None,
+                npc:str=None,
                 trx_id:str=None,
                 before:str=None,
                 after:str=None,
@@ -663,6 +664,7 @@ async def get_raw_npcecnounter_actions(
         after=after,
         train=train,
         century=century,
+        npc=npc,
         before_timestamp=before_timestamp,
         after_timestamp=after_timestamp,
         offset=offset,

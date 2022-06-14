@@ -51,6 +51,7 @@ def query_raw(
     century:str=None,
     trx_id:str=None,
     before:str=None,
+    npc:str=None,
     after:str=None,
     fuel_type:config.FuelType=None,
     before_timestamp:int=None,
@@ -71,6 +72,8 @@ def query_raw(
     if fuel_type:
         query = query.where(model.fuel_type==fuel_type.value)
 
+    if npc:
+        query = query.where(model.npc==npc)
     
     if before:
         query = query.where(model.block_time<=before)
