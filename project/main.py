@@ -502,10 +502,7 @@ async def get_raw_logrun_actions(
                 "block_timestamp": trans.block_timestamp,
                 "railroader": trans.railroader,
                 "railroader_reward": trans.railroader_reward,
-                "logtip": {
-                        "total_tips":trans.logtips[0].total_tips,
-                        "before_tips": trans.logtips[0].before_tips,
-                        "tips":trans.logtips[0].tips} if len(trans.logtips) > 0  else {},
+                "total_tips": trans.logtips[0].total_tips if len(trans.logtips) > 0  else 0,
                 "run_complete": trans.run_complete,
                 "run_start": trans.run_start,
                 "station_owner": trans.station_owner,
@@ -525,7 +522,7 @@ async def get_raw_logrun_actions(
         ]
     
     else:
-        if resource_key == config.resource_key:
+        #if resource_key == config.resource_key:
             transports = session.exec(query.offset(offset).limit(limit).options(selectinload(Logrun.cars)).options(selectinload(Logrun.logtips)).options(selectinload(Logrun.npcs)).options(selectinload(Logrun.locomotives)).options(selectinload(Logrun.conductors))).all()
         
             out = [
@@ -578,8 +575,8 @@ async def get_raw_logrun_actions(
                 }
                 for trans in transports
             ]
-        else:
-            return {"query_time":time.perf_counter()-start,"success":False,"error":"Invalid resource_key!"}
+        # else:
+        #     return {"query_time":time.perf_counter()-start,"success":False,"error":"Invalid resource_key!"}
 
     
     return {"query_time":time.perf_counter()-start,"data":out}
