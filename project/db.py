@@ -8,7 +8,7 @@ from disclog import postLog
 
 engine = create_engine(
     'postgresql://postgres:postgres@db:5432/foo', convert_unicode=True,
-    pool_recycle=3600, pool_size=10)
+    pool_recycle=3600, pool_size=5)
 db_session = scoped_session(sessionmaker(
     autocommit=False, autoflush=False, bind=engine))
 

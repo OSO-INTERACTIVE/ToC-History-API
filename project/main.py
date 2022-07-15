@@ -457,6 +457,7 @@ async def get_raw_logrun_actions(
               limit:int=Query(default=1000, lte=1000),
               simple:bool=True,
               order:config.OrderChoose=config.OrderChoose.desc,
+              resource_key:str=None,
               session: Session = Depends(get_session),
               ):
     start = time.perf_counter()
@@ -520,58 +521,61 @@ async def get_raw_logrun_actions(
         ]
     
     else:
-        transports = session.exec(query.offset(offset).limit(limit).options(selectinload(Logrun.cars)).options(selectinload(Logrun.logtips)).options(selectinload(Logrun.npcs)).options(selectinload(Logrun.locomotives)).options(selectinload(Logrun.conductors))).all()
-    
-        out = [
-                    {
-                "trx_id": trans.trx_id,
-                # "action_seq": trans.action_seq,
-                "block_time": trans.block_time,
-                "block_timestamp": trans.block_timestamp,
-                "railroader": trans.railroader,
-                "cars": [buildCar(car) for car in trans.cars],
-                "locomotives": [{
-                    "name":loc.template.name,
-                    "asset_id":loc.asset_id,
-                    "cardid":loc.template.cardid,
-                    "speed":loc.template.speed,
-                    "distance":loc.template.distance,
-                    "composition":loc.template.composition,
-                    "rarity":loc.template.rarity,
-                    "hauling_power":loc.template.hauling_power,
-                    "conductor_threshold":loc.template.conductor_threshold} for loc in trans.locomotives],
-                "conductors": [{
-                    "name":con.template.name,
-                    "asset_id":con.asset_id,
-                    "cardid":con.template.cardid,
-                    "conductor_level":con.template.conductor_level,
-                    "perk":con.template.perk,
-                    "perk_boost":con.template.perk_boost,
-                    "perk2":con.template.perk2,
-                    "perk_boost2":con.template.perk_boost2} for con in trans.conductors],
-                "logtip": {
-                    "total_tips":trans.logtips[0].total_tips,
-                    "before_tips": trans.logtips[0].before_tips,
-                    "tips":trans.logtips[0].tips} if len(trans.logtips) > 0  else {},
-                "npcencounter":trans.npcs,
-                "railroader_reward": trans.railroader_reward,
-                "run_complete": trans.run_complete,
-                "run_start": trans.run_start,
-                "station_owner": trans.station_owner,
-                "station_owner_reward": trans.station_owner_reward,
-                "arrive_station": trans.arrive_station,
-                "depart_station": trans.depart_station,
-                "train_name": trans.train_name,
-                "weight": trans.weight,
-                "century": trans.century,
-                "distance": trans.distance,
-                "last_run_time": trans.last_run_time,
-                "last_run_tx": trans.last_run_tx,
-                "fuel_type": trans.fuel_type,
-                "quantity": trans.quantity
-            }
-            for trans in transports
-        ]
+        if resource_key == config.resource_key:
+            transports = session.exec(query.offset(offset).limit(limit).options(selectinload(Logrun.cars)).options(selectinload(Logrun.logtips)).options(selectinload(Logrun.npcs)).options(selectinload(Logrun.locomotives)).options(selectinload(Logrun.conductors))).all()
+        
+            out = [
+                        {
+                    "trx_id": trans.trx_id,
+                    # "action_seq": trans.action_seq,
+                    "block_time": trans.block_time,
+                    "block_timestamp": trans.block_timestamp,
+                    "railroader": trans.railroader,
+                    "cars": [buildCar(car) for car in trans.cars],
+                    "locomotives": [{
+                        "name":loc.template.name,
+                        "asset_id":loc.asset_id,
+                        "cardid":loc.template.cardid,
+                        "speed":loc.template.speed,
+                        "distance":loc.template.distance,
+                        "composition":loc.template.composition,
+                        "rarity":loc.template.rarity,
+                        "hauling_power":loc.template.hauling_power,
+                        "conductor_threshold":loc.template.conductor_threshold} for loc in trans.locomotives],
+                    "conductors": [{
+                        "name":con.template.name,
+                        "asset_id":con.asset_id,
+                        "cardid":con.template.cardid,
+                        "conductor_level":con.template.conductor_level,
+                        "perk":con.template.perk,
+                        "perk_boost":con.template.perk_boost,
+                        "perk2":con.template.perk2,
+                        "perk_boost2":con.template.perk_boost2} for con in trans.conductors],
+                    "logtip": {
+                        "total_tips":trans.logtips[0].total_tips,
+                        "before_tips": trans.logtips[0].before_tips,
+                        "tips":trans.logtips[0].tips} if len(trans.logtips) > 0  else {},
+                    "npcencounter":trans.npcs,
+                    "railroader_reward": trans.railroader_reward,
+                    "run_complete": trans.run_complete,
+                    "run_start": trans.run_start,
+                    "station_owner": trans.station_owner,
+                    "station_owner_reward": trans.station_owner_reward,
+                    "arrive_station": trans.arrive_station,
+                    "depart_station": trans.depart_station,
+                    "train_name": trans.train_name,
+                    "weight": trans.weight,
+                    "century": trans.century,
+                    "distance": trans.distance,
+                    "last_run_time": trans.last_run_time,
+                    "last_run_tx": trans.last_run_tx,
+                    "fuel_type": trans.fuel_type,
+                    "quantity": trans.quantity
+                }
+                for trans in transports
+            ]
+        else:
+            return {"query_time":time.perf_counter()-start,"success":False,"error":"Invalid resource_key!"}
 
     
     return {"query_time":time.perf_counter()-start,"data":out}

@@ -2,7 +2,9 @@ from enum import Enum
 
 server_name = "US-east"
 discord_hook_key = ""
-role_to_ping = 945722169265107024
+role_to_ping = 123
+resource_key = "123abc"
+
 tags_metadata = [
     {
         "name": "status",
