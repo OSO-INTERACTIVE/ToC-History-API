@@ -492,7 +492,7 @@ async def get_raw_logrun_actions(
         query = query.order_by(Logrun.block_time)
     
     if simple:
-            transports = session.exec(query.options(lazyload('cars')).options(lazyload('locomotives')).options(lazyload('conductors')).offset(offset).limit(limit)).all()
+            transports = session.exec(query.options(lazyload('cars')).options(lazyload('locomotives')).options(lazyload('conductors')).options(selectinload(Logrun.logtips)).offset(offset).limit(limit)).all()
     
             out = [
                     {
@@ -502,6 +502,10 @@ async def get_raw_logrun_actions(
                 "block_timestamp": trans.block_timestamp,
                 "railroader": trans.railroader,
                 "railroader_reward": trans.railroader_reward,
+                "logtip": {
+                        "total_tips":trans.logtips[0].total_tips,
+                        "before_tips": trans.logtips[0].before_tips,
+                        "tips":trans.logtips[0].tips} if len(trans.logtips) > 0  else {},
                 "run_complete": trans.run_complete,
                 "run_start": trans.run_start,
                 "station_owner": trans.station_owner,
