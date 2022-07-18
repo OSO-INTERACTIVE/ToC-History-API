@@ -1,6 +1,6 @@
 
 from sqlalchemy.orm.session import Session
-from sqlalchemy.orm import selectinload, lazyload
+from sqlalchemy.orm import selectinload, lazyload, joinedload
 from fastapi import FastAPI, Request, Depends, Query
 from fastapi.middleware.cors import CORSMiddleware
 from sqlalchemy.future import select
@@ -523,7 +523,7 @@ async def get_raw_logrun_actions(
     
     else:
         #if resource_key == config.resource_key:
-            transports = session.exec(query.offset(offset).limit(limit).options(selectinload(Logrun.cars)).options(selectinload(Logrun.logtips)).options(selectinload(Logrun.npcs)).options(selectinload(Logrun.locomotives)).options(selectinload(Logrun.conductors))).all()
+            transports = session.exec(query.options(joinedload(Logrun.cars, innerjoin=True)).options(joinedload(Logrun.locomotives, innerjoin=True)).options(joinedload(Logrun.co, innerjoin=True)).options(selectinload(Logrun.logtips)).offset(offset).limit(limit)).all()
         
             out = [
                         {
