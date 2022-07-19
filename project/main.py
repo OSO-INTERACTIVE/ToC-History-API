@@ -454,7 +454,7 @@ async def get_raw_logrun_actions(
               before_timestamp:int=None,
               after_timestamp:int=None,
               offset: int = 0,
-              limit:int=Query(default=1000, lte=1000),
+              limit:int=Query(default=100, lte=250),
               simple:bool=True,
               order:config.OrderChoose=config.OrderChoose.desc,
               resource_key:str=None,
@@ -491,6 +491,10 @@ async def get_raw_logrun_actions(
     else:
         query = query.order_by(Logrun.block_time)
     
+    if limit > 250:
+        limit = 250
+                
+    
     if simple:
             transports = session.exec(query.options(lazyload('cars')).options(lazyload('locomotives')).options(lazyload('conductors')).options(selectinload(Logrun.logtips)).offset(offset).limit(limit)).all()
     
@@ -523,6 +527,7 @@ async def get_raw_logrun_actions(
     
     else:
         #if resource_key == config.resource_key:
+            
             transports = session.exec(query.options(selectinload(Logrun.cars)).options(selectinload(Logrun.locomotives)).options(selectinload(Logrun.conductors)).options(selectinload(Logrun.logtips)).offset(offset).limit(limit)).all()
         
             out = [
