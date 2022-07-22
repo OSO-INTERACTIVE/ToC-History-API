@@ -357,10 +357,9 @@ class AchievementProcessor():
                     coms_to_add = []
                     for car in act.cars:
                         for load in car.loads:
-                        
-                            if load.type:
-                                if not load.type in coms_to_add:
-                                    coms_to_add.append(load.type)
+                            if load.template.type:
+                                if not load.template.type in coms_to_add:
+                                    coms_to_add.append(str(load.template.type))
                     
                     for typ in coms_to_add:
                         field = f"total_miles_{typ}"
