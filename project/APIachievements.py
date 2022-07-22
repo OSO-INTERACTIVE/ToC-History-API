@@ -16,7 +16,7 @@ from disclog import postLog
 app = FastAPI(title="Train Century Achievement API",
         description="made with <3 by green",
         version="0.0.3",
-        openapi_tags=config.tags_metadata)
+        openapi_tags=config.achv_tags_metadata)
 
 origins = [
     "*"

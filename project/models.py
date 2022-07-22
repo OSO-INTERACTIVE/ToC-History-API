@@ -255,7 +255,7 @@ class Template(SQLModel, table=True):
 class Asset(SQLModel, table=True):
     
     asset_id: str =  Field(sa_column=Column("asset_id", String, unique=True, primary_key=True, nullable=False))
-    template_id: int = Field(default=None, foreign_key="template.template_id")
+    template_id: Optional[int] = Field(default=None, foreign_key="template.template_id")
     template: Optional[Template] = Relationship(back_populates="assets", sa_relationship_kwargs=dict(lazy="joined"))
 
     
@@ -292,15 +292,17 @@ class Railroader(SQLModel, table=True):
     total_miles_top_secret: int
 
     npc_encounter: int
+    otto_meets: int
+    stranger_meets: int
     
-    achievements: List["Achievement"] = Relationship(back_populates="railroader",sa_relationship_kwargs=dict(lazy="joined"))
+    achievements: List["Achievement"] = Relationship(back_populates="railroader")
 
 class Achievement(SQLModel, table=True):
     
     
     id: Optional[int] = Field(default=None, primary_key=True, nullable=False)
     railroader_id: Optional[int] = Field(default=None, foreign_key="railroader.id")
-    railroader: Optional[Railroader] = Relationship(back_populates="achievements", sa_relationship_kwargs=dict(lazy="joined"))
+    railroader: Optional[Railroader] = Relationship(back_populates="achievements")
 
     
     type: Optional[str]

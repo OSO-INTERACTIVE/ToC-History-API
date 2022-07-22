@@ -5,7 +5,7 @@ discord_hook_key = ""
 role_to_ping = 123
 resource_key = "123abc"
 
-tags_metadata = [
+history_tags_metadata = [
     {
         "name": "status",
         "description": "Operating info about the api and filler.",
@@ -26,6 +26,18 @@ tags_metadata = [
         "name": "atomic",
         "description": "local copy of atomicassets data for templates and assets",
     },
+]
+
+achv_tags_metadata = [
+    {
+        "name": "status",
+        "description": "Operating info about the api.",
+    },
+    {
+        "name": "achievements",
+        "description": "Query info about avs. ",
+    },
+    
 ]
 
 class FuelType(str, Enum):

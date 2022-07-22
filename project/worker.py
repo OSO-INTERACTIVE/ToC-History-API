@@ -435,7 +435,9 @@ class AchievementProcessor():
                         total_miles_automobile= 0,
                         total_miles_top_secret= 0,
                         achievements = [],
-                        npc_encounter= 0
+                        npc_encounter= 0,
+                        otto_meets=0,
+                        stranger_meets=0
                     ))
 
         if typ == "npcencounter":
@@ -443,26 +445,32 @@ class AchievementProcessor():
                 existing = session.query(Railroader).filter(Railroader.name==act.railroader).first()
                 if existing:
                     existing.npc_encounter +=1
-                    session.add(existing)   
-                    for otto in otto_cuts:
-                        if existing.npc_encounter == otto:
-                            found=False
-                            for av in existing.achievements:
-                                
-                                if av.criteria == "otto" and av.value == otto:
-                                    found=True
-                            if found==False:
-                                new_av =Achievement(
-                                    railroader_id= existing.id,
-                                    railroader=existing,
-                                    type= "otto",
-                                    criteria= "days",
-                                    tier= otto_dict[str(otto)],
-                                    value= otto,
-                                    name= otto_av_names[str(otto)],
-                                    reached= True,
-                                    reached_date_timestamp= act.block_timestamp)
-                                session.add(new_av)
+                    if act.npc.lower() == "otto": 
+                        existing.otto_meets +=1
+                        for otto in otto_cuts:
+                            if existing.otto_meets == otto:
+                                found=False
+                                for av in existing.achievements:
+                                    
+                                    if av.criteria == "otto" and av.value == otto:
+                                        found=True
+                                if found==False:
+                                    new_av =Achievement(
+                                        railroader_id= existing.id,
+                                        railroader=existing,
+                                        type= "otto",
+                                        criteria= "days",
+                                        tier= otto_dict[str(otto)],
+                                        value= otto,
+                                        name= otto_av_names[str(otto)],
+                                        reached= True,
+                                        reached_date_timestamp= act.block_timestamp)
+                                    session.add(new_av)
+                                    
+                    if act.npc.lower() == "stranger":
+                        existing.stranger_meets +=1
+                     
+                        
                     session.add(existing)   
                                     
                     try:
@@ -493,7 +501,9 @@ class AchievementProcessor():
                         total_miles_automobile= 0,
                         total_miles_top_secret= 0,
                         achievements = [],
-                        npc_encounter= 1
+                        npc_encounter= 1,
+                        otto_meets=0,
+                        stranger_meets=1
                     ))
                     
 

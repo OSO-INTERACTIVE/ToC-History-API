@@ -19,7 +19,7 @@ from fastapi_cache.decorator import cache
 app = FastAPI(title="Train Century History API",
         description="made with <3 by green",
         version="0.1.8a",
-        openapi_tags=config.tags_metadata)
+        openapi_tags=config.history_tags_metadata)
 
 origins = [
     "*"
