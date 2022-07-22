@@ -15,7 +15,7 @@ def filler(posrr,posm) -> str:
                            posm=posm)
     run = True
 
-    postGeneric([("info","API init success! Logger started.")],"Startup")
+    postGeneric([("info","Success, filler started!")],"Startup")
   
     while run:
         try:
