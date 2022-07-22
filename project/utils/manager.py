@@ -1,4 +1,4 @@
-import concurrent.futures, time, inspect
+import concurrent.futures, time, inspect, datetime
 from utils.nodes import History
 from config import wanted_actions
 from disclog import postLog
@@ -49,6 +49,28 @@ class TrainManager:
 
         if time.time()-start < 0.5:
             time.sleep(0.6-(time.time()-start))
+    
+    def test(self):
+        search=True
+        while search:
+            try:
+                res = self.sess.get_actions(account_name="m.century",pos=self.posm).json()
+                jst = res["actions"]
+                stm = (jst[-1]["action_trace"]["block_time"])
+                print(stm,self.posm)
+            except Exception as e:
+                print(e,res)
+                search = False
+                time.sleep(10)
+            
+                fin=self.posm-75000
+            self.posm+=75000
+            time.sleep(0.5)
+
+        print(fin)
+        print(int(self.pos+(1000*((datetime.utcnow()-datetime.fromisoformat(stm)).total_seconds()/60))-10000)) 
+
+        return fin
         
         
             

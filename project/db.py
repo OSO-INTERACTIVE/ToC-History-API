@@ -3,11 +3,11 @@
 from sqlalchemy.orm import scoped_session
 from sqlalchemy.orm import sessionmaker
 from sqlmodel import Field, Session, SQLModel, create_engine, select
-import inspect, config
+import inspect, config, os
 from disclog import postLog
 
 engine = create_engine(
-    'postgresql://postgres:postgres@db:5432/foo', convert_unicode=True,
+    os.getenv('DATABASE_URL','postgresql://postgres:postgres@db:5432/foo'), convert_unicode=True,
     pool_recycle=3600, pool_size=5)
 db_session = scoped_session(sessionmaker(
     autocommit=False, autoflush=False, bind=engine))

@@ -1,0 +1,20 @@
+version: '3.8'
+
+services:
+  web:
+    build: ./project
+    ports:
+      - 127.0.0.1:8001:8000
+    command: gunicorn -w 10 -k uvicorn.workers.UvicornWorker -b 0.0.0.0:8000 APIachievements:app
+    volumes:
+      - ./project:/usr/src/app
+    environment:
+      - CELERY_BROKER_URL=redis://redis:6379/0
+      - CELERY_RESULT_BACKEND=redis://redis:6379/0
+      - DATABASE_URL=postgresql+asyncpg://postgres:postgres@db:5432/foo
+    depends_on:
+      - redis
+
+  redis:
+    image: redis:6-alpine
+    restart: 'unless-stopped'

@@ -263,3 +263,57 @@ class Asset(SQLModel, table=True):
     station_name: Optional[str]
     region_id: Optional[int]
     img: Optional[str]
+
+
+class Railroader(SQLModel, table=True):
+    id: Optional[int] = Field(default=None, primary_key=True, nullable=False)
+
+    name: str
+    first_run_stamp: int
+
+    total_miles: int
+    total_runs: int
+    conseq_day: int
+
+    last_run_stamp: int
+
+    total_miles_pallet: int
+    total_miles_crate: int
+    total_miles_liquid: int
+    total_miles_gas: int
+    total_miles_aggregate: int
+    total_miles_ore: int
+    total_miles_granule: int
+    total_miles_grain: int
+    total_miles_perishable: int
+    total_miles_oversized: int
+    total_miles_building_materials: int
+    total_miles_automobile: int
+    total_miles_top_secret: int
+
+    npc_encounter: int
+    
+    achievements: List["Achievement"] = Relationship(back_populates="railroader")
+
+class Achievement(SQLModel, table=True):
+    
+    
+    id: Optional[int] = Field(default=None, primary_key=True, nullable=False)
+    railroader_id: Optional[int] = Field(default=None, foreign_key="railroader.id")
+    railroader: Optional[Railroader] = Relationship(back_populates="achievements")
+
+    
+    type: Optional[str]
+    criteria: Optional[str]
+    tier: Optional[int]
+    value: Optional[int]
+    name: Optional[str]
+    reached: Optional[bool]
+    reached_date_timestamp: Optional[int]
+
+class Meta(SQLModel, table=True):
+    
+    
+    id: Optional[int] = Field(default=None, primary_key=True, nullable=False)
+    
+    current_timestamp: Optional[str]

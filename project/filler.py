@@ -52,12 +52,13 @@ if __name__ == "__main__":
                 time.sleep(1200)
                 
             if posrrr: posrr = posrrr.action_seq
-            else: posrr = 1642127
+            else: posrr = 4453900
             if posmr: posm = posmr.action_seq
-            else: posm = 981927   
+            else: posm = 2103900   
 
             filler(posrr,posm)
         except Exception as e:
                 
                 postLog(e,"warn",f"{inspect.stack()[0][3]}:{inspect.stack()[0][2]}")
                 time.sleep(30)
+    
