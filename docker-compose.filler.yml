@@ -26,7 +26,6 @@ services:
       - CELERY_RESULT_BACKEND=redis://redis:6379/0
       - DATABASE_URL=postgresql+asyncpg://postgres:postgres@db:5432/foo
     depends_on:
-      - filler
       - redis
 
   redis:

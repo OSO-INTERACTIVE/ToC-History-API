@@ -49,7 +49,14 @@ if __name__ == "__main__":
                 cachetool.set_cache(f"last_templates",1622316652000)
                 cachetool.set_cache(f"last_assets",1622316652000)
                 scanTemplates()
-                time.sleep(1200)
+                time.sleep(550)
+                scanTemplates()
+                time.sleep(550)
+                scanTemplates()
+                time.sleep(550)
+                scanTemplates()
+                time.sleep(550)
+
                 
             if posrrr: posrr = posrrr.action_seq
             else: posrr = 4453900

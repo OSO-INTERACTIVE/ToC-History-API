@@ -3,6 +3,7 @@ from sqlmodel import Session, or_
 from celery import Celery
 from models import Logrun,Usefuel, Npcencounter,Car, Logtip, Tip, Template, Asset, Buyfuel, Railroader, Achievement
 from db import db_session, engine, commit_or_rollback
+from sqlalchemy.orm import selectinload
 import cachetool,config, os, time, inspect
 from utils.nodes import AH, pick_best_waxnode
 from disclog import postLog
@@ -54,6 +55,8 @@ def fetchRoutine(mode,server):
                 except Exception as e:
                     cachetool.set_cache(f"last_{mode}",int(jst["data"][-1]["created_at_time"]))
 
+            if len(out) > 50000:
+                running = False
             page += 1
             time.sleep(0.7)
         except Exception as e:
