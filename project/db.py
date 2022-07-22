@@ -7,7 +7,7 @@ import inspect, config, os
 from disclog import postLog
 
 engine = create_engine(
-    os.getenv('DATABASE_URL','postgresql://postgres:postgres@db:5432/foo'), convert_unicode=True,
+    f"postgresql://{os.getenv('DATABASE_URL','postgresql://postgres:postgres@db:5432/foo').split('://')[1]}", convert_unicode=True,
     pool_recycle=3600, pool_size=5)
 db_session = scoped_session(sessionmaker(
     autocommit=False, autoflush=False, bind=engine))
