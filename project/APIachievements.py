@@ -68,7 +68,7 @@ async def fetch_roaders(
     out = [
         { 
             "roader_meta":roader,
-            "achievements":roader.achievements,
+            "achievements":format_achievements(roader.achievements),
             }
         for roader in roaders
     ]
@@ -111,7 +111,7 @@ async def fetch_avs(
             
         if achv_id:
             named = list(config.achv_mapped.keys())[list(config.achv_mapped.values()).index(achv_id)].split(' ')
-            query = query.where(Achievement.name==" ".join(named[:-2])).where(Achievement.tier==int(named[-1]))
+            query = query.where(Achievement.name==" ".join(named[:-1])).where(Achievement.tier==int(named[-1]))
             
         if order.value == 'desc':
             query = query.order_by(Achievement.reached_date_timestamp.desc())
@@ -119,8 +119,12 @@ async def fetch_avs(
             query = query.order_by(Achievement.reached_date_timestamp)
         
         achievs = session.exec(query.offset(offset).limit(limit)).all()
-        
-        out = [
+
+    return {"query_time":time.perf_counter()-start,"data":format_achievements(achievs)}
+    
+
+def format_achievements(achievs):
+    return [
             { 
                 "id":achiev.id,
                 "achv_id": config.achv_mapped[f"{achiev.name} {achiev.tier}"],
@@ -134,6 +138,3 @@ async def fetch_avs(
                 }
             for achiev in achievs
         ]
-
-    return {"query_time":time.perf_counter()-start,"data":out}
-    
