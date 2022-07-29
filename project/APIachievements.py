@@ -79,6 +79,13 @@ async def fetch_roaders(
 @cache(expire=10)
 async def fetch_avs(
             railroader:str=None,
+            achv_id:int=None,
+            type:str=None,
+            criteria:str=None,
+            name:str=None,
+            tier:int=None,
+            after:int=None,
+            before:int=None,
             limit:int=1000,
             offset:int=0,
             order:config.OrderChoose=config.OrderChoose.desc,
@@ -89,6 +96,22 @@ async def fetch_avs(
 
         if railroader:
             query = query.where(Achievement.railroader.name==railroader)
+        if type:
+            query = query.where(Achievement.type==type)
+        if criteria:
+            query = query.where(Achievement.criteria==criteria)
+        if name:
+            query = query.where(Achievement.name==name)
+        if tier:
+            query = query.where(Achievement.tier==tier)
+        if after:
+            query = query.where(Achievement.reached_date_timestamp>after)
+        if before:
+            query = query.where(Achievement.reached_date_timestamp<before)
+            
+        if achv_id:
+            named = list(config.achv_mapped.keys())[list(config.achv_mapped.values()).index(achv_id)].split(' ')
+            query = query.where(Achievement.name==" ".join(named[:-2])).where(Achievement.tier==int(named[-1]))
             
         if order.value == 'desc':
             query = query.order_by(Achievement.reached_date_timestamp.desc())
@@ -100,6 +123,7 @@ async def fetch_avs(
         out = [
             { 
                 "id":achiev.id,
+                "achv_id": config.achv_mapped[f"{achiev.name} {achiev.tier}"],
                 "railroader":achiev.railroader.name,
                 "type":achiev.type,
                 "criteria": achiev.criteria,
