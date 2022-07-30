@@ -65,13 +65,13 @@ async def fetch_roaders(
         
         roaders = session.exec(query.offset(offset).limit(limit).options(selectinload(Railroader.achievements))).all()
         
-    out = [
-        { 
-            "roader_meta":roader,
-            "achievements":format_achievements(roader.achievements),
-            }
-        for roader in roaders
-    ]
+        out = [
+            { 
+                "roader_meta":roader,
+                "achievements":format_achievements(roader.achievements),
+                }
+            for roader in roaders
+        ]
 
     return {"query_time":time.perf_counter()-start,"data":out}
 
