@@ -1,29 +1,33 @@
-import concurrent.futures,inspect, requests,config
+import concurrent.futures, inspect, requests, config
+
 
 class apiException(Exception):
     pass
 
+
 def get_resp(url: str) -> requests.models.Response:
-    
-    resp = requests.get(url,timeout=5)
+
+    resp = requests.get(url, timeout=5)
     resp.raise_for_status()
     if resp.json().get("error"):
         raise apiException(resp.json().get("error"))
     return resp
 
+
 def build_query(args: dict) -> str:
-        args.pop("endpoint")
-        args.pop("url")
-        args.pop("self")
-        query = None
-        for arg in args:
-            #print(arg)
-            if args.get(arg) is not None:
-                if query is None:
-                    query = f"{arg}={args.get(arg)}"
-                else:
-                    query += f"&{arg}={args.get(arg)}"
-        return query
+    args.pop("endpoint")
+    args.pop("url")
+    args.pop("self")
+    query = None
+    for arg in args:
+        # print(arg)
+        if args.get(arg) is not None:
+            if query is None:
+                query = f"{arg}={args.get(arg)}"
+            else:
+                query += f"&{arg}={args.get(arg)}"
+    return query
+
 
 class History:
     def __init__(
@@ -32,30 +36,25 @@ class History:
         server="https://wax.greymass.com",
     ):
         self.limit = 100
-        self.api_version = api_version 
+        self.api_version = api_version
         self.server = server
         self.url_base = f"{self.server}/{self.api_version}/history"
         self.session = requests.Session()
-    
+
     def get_actions(
         self,
-        account_name: str = 'm.federation',
+        account_name: str = "m.federation",
         pos: int = None,
         offset: int = 100,
         sort: str = "asc",
-        start: str ="2020-12-17T15:30:51.346Z"
+        start: str = "2020-12-17T15:30:51.346Z",
     ) -> requests.models.Response:
         endpoint = inspect.currentframe().f_code.co_name
         url = f"{self.url_base}/{endpoint}"
-        data = {
-            'account_name':account_name,
-            'pos':pos,
-            'offset':offset,
-            "sort": sort,
-            "after":start
-        }
+        data = {"account_name": account_name, "pos": pos, "offset": offset, "sort": sort, "after": start}
         # print(url)
-        return self.session.post(f"{url}",json=data)
+        return self.session.post(f"{url}", json=data)
+
 
 class Hyperion:
     def __init__(
@@ -64,7 +63,7 @@ class Hyperion:
         server="api.waxsweden.org",
     ):
         self.limit = 100
-        self.api_version = api_version 
+        self.api_version = api_version
         self.server = server
         self.url_base = f"https://{self.server}/{self.api_version}/history"
 
@@ -72,12 +71,12 @@ class Hyperion:
         self,
         skip: int = None,
         after: int = None,
-        serv: str = 'https://api.waxsweden.org',
+        serv: str = "https://api.waxsweden.org",
     ) -> requests.models.Response:
         url = f"{serv}/v2/history/"
-        
-        return get_resp(f'{url}get_actions?act.name=logmine&limit=100&sort=asc&after={after}&skip={skip}')
-        
+
+        return get_resp(f"{url}get_actions?act.name=logmine&limit=100&sort=asc&after={after}&skip={skip}")
+
 
 class WAXMonitor:
     def __init__(
@@ -87,22 +86,23 @@ class WAXMonitor:
         self.limit = 100
         self.server = server
         self.url_base = f"http://{self.server}/api"
-        
+
         self.session = requests.Session()
-    
+
     def endpoints(
         self,
         type: int = None,
     ) -> requests.models.Response:
         endpoint = "endpoints"
         url = f"{self.url_base}/{endpoint}"
-        #args = locals()
-        #print(f"{url
+        # args = locals()
+        # print(f"{url
         args = locals()
         query = build_query(args)
         if query is None:
             raise Exception("Must provide at least one query parameter")
         return self.session.get(f"{url}?{query}")
+
 
 class AH:
     def __init__(
@@ -115,15 +115,13 @@ class AH:
         self.server = server
         self.url_base = f"{self.server}/atomicassets/{self.api_version}"
         self.session = requests.Session()
-    
-    def get_resp_ah(self,url: str) -> requests.models.Response:
-    
-        resp = self.session.get(url,timeout=15)
+
+    def get_resp_ah(self, url: str) -> requests.models.Response:
+
+        resp = self.session.get(url, timeout=15)
         resp.raise_for_status()
         return resp.json()
 
-    
-    
     def templates(
         self,
         collection_name: str = "centurytrain",
@@ -140,7 +138,7 @@ class AH:
         query = build_query(args)
         if query is None:
             raise Exception("Must provide at least one query parameter")
-        #print(f"{url}?{query}")
+        # print(f"{url}?{query}")
         return self.get_resp_ah(f"{url}?{query}")
 
     def assets(
@@ -164,16 +162,13 @@ class AH:
         return self.get_resp_ah(f"{url}?{query}")
 
 
-def pick_best_waxnode(type,cutoff:int=8):
-    
+def pick_best_waxnode(type, cutoff: int = 8):
+
     resp = WAXMonitor().endpoints(type=type).json()
-    out=[]
+    out = []
     for node in resp:
         if node["weight"] > cutoff:
             out.append(node["node_url"])
     if len(out) == 0:
         return ["https://aa-wax-public1.neftyblocks.com"]
     return out
-
-
-

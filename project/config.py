@@ -37,7 +37,6 @@ achv_tags_metadata = [
         "name": "achievements",
         "description": "Query info about avs. ",
     },
-
 ]
 
 
@@ -52,8 +51,7 @@ class OrderChoose(str, Enum):
 
 
 wanted_actions = ["logrun", "logtips", "npcencounter"]
-wanted_templates = ["passengercar", "passenger", "locomotive",
-                    "conductor", "railcar", "commodity", "station"]
+wanted_templates = ["passengercar", "passenger", "locomotive", "conductor", "railcar", "commodity", "station"]
 
 achv_mapped = {
     "Beta Badge": 1,
@@ -141,5 +139,5 @@ achv_mapped = {
     "Entity 9’s BFF 2": 83,
     "Entity 9’s BFF 3": 84,
     "Entity 9’s BFF 4": 85,
-    "Entity 9’s BFF 5": 86
+    "Entity 9’s BFF 5": 86,
 }
