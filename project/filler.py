@@ -1,7 +1,7 @@
 from worker import writer, scanTemplates
 from utils.manager import TrainManager
 import time
-from db import engine
+from db import engine, init_db
 from sqlmodel import Session
 from models import Logrun, Usefuel, Template
 import cachetool
@@ -34,6 +34,7 @@ def filler(posrr, posm) -> str:
 
 if __name__ == "__main__":
     startup = True
+    init_db()
 
     while startup:
         try:
@@ -46,6 +47,7 @@ if __name__ == "__main__":
             if toptemp:
                 print("skipping init")
             else:
+
                 cachetool.set_cache(f"last_templates", 1622316652000)
                 cachetool.set_cache(f"last_assets", 1622316652000)
                 scanTemplates()
