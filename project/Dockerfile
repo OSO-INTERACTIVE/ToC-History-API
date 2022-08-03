@@ -1,5 +1,5 @@
 # pull official base image
-FROM python:3.7-buster
+FROM python:3.10-buster
 
 # set work directory
 WORKDIR /usr/src/app
@@ -11,7 +11,7 @@ ENV PYTHONUNBUFFERED 1
 RUN apt-get update \
   && apt-get -y install netcat gcc postgresql \
   && apt-get clean
-  
+
 # install dependencies
 RUN pip install --upgrade pip
 COPY ./requirements.txt .
