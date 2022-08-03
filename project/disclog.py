@@ -1,9 +1,10 @@
+from typing import Literal
 from discord_webhook import DiscordWebhook, DiscordEmbed
 import config, time
 from datetime import datetime
 
 
-def getColor(type):
+def getColor(type: str | None) -> Literal[0xFF1D19] | Literal[0xFFEC44] | Literal[0x18A805] | Literal[0x5242FF]:
     if type == "error":
         return 0xFF1D19
     if type == "warn":
@@ -14,9 +15,8 @@ def getColor(type):
     return 0x5242FF
 
 
-def buildEmbed(content, type):
+def buildEmbed(content: list[tuple[str, str]], type: str) -> DiscordEmbed | Literal[False]:
     try:
-
         embed = DiscordEmbed(title=type.upper(), color=getColor(type))
         embed.set_footer(text=f"{config.server_name}")
         embed.set_timestamp(timestamp=datetime.utcnow().timestamp())
@@ -29,7 +29,7 @@ def buildEmbed(content, type):
         return False
 
 
-def postLog(message, type, stack):
+def postLog(message: Exception, type: str, stack: str) -> Literal[True] | None:
     if config.discord_hook_key != "":
         content = [("stack", stack), ("trace", str(message))]
         embed = buildEmbed(content, type)
@@ -38,7 +38,7 @@ def postLog(message, type, stack):
     print(f"{datetime.utcnow()} - {stack} - {str(message)}")
 
 
-def postGeneric(content, type):
+def postGeneric(content: list[tuple[str, str]], type: str) -> Literal[True] | None:
     if config.discord_hook_key != "":
         embed = buildEmbed(content, type)
         return postHook(embed)
@@ -46,7 +46,7 @@ def postGeneric(content, type):
     print(f"{datetime.utcnow()} - {type} - {str(content)}")
 
 
-def postHook(embed):
+def postHook(embed: DiscordEmbed) -> Literal[True] | None:
     x = True
     while x:
         try:
