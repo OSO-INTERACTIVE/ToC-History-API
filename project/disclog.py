@@ -1,7 +1,10 @@
-from typing import Literal
-from discord_webhook import DiscordWebhook, DiscordEmbed
-import config, time
+import time
 from datetime import datetime
+from typing import Literal
+
+from discord_webhook import DiscordEmbed, DiscordWebhook
+
+import config
 
 
 def getColor(type: str | None) -> Literal[0xFF1D19] | Literal[0xFFEC44] | Literal[0x18A805] | Literal[0x5242FF]:

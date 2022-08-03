@@ -1,12 +1,14 @@
-from worker import writer, scanTemplates
-from utils.manager import TrainManager
-import time
-from db import engine, init_db
-from sqlmodel import Session
-from models import Logrun, Usefuel, Template
-import cachetool
 import inspect
-from disclog import postLog, postGeneric
+import time
+
+from sqlmodel import Session
+
+import cachetool
+from db import engine, init_db
+from disclog import postGeneric, postLog
+from models import Logrun, Template, Usefuel
+from utils.manager import TrainManager
+from worker import scanTemplates, writer
 
 
 def filler(posrr, posm) -> str:

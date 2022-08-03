@@ -1,4 +1,6 @@
-import redis, json
+import json
+
+import redis
 
 conn = redis.Redis(host="redis", port=6379, db=1)
 

@@ -1,12 +1,17 @@
+import inspect
+import os
+import time
 from datetime import datetime
-from sqlmodel import Session, or_
+
 from celery import Celery
-from models import Logrun, Usefuel, Npcencounter, Car, Logtip, Tip, Template, Asset, Buyfuel, Railroader, Achievement
-from db import db_session, engine, commit_or_rollback
-from sqlalchemy.orm import selectinload
-import cachetool, config, os, time, inspect
-from utils.nodes import AH, pick_best_waxnode
+from sqlmodel import Session
+
+import cachetool
+import config
+from db import commit_or_rollback, db_session, engine
 from disclog import postLog
+from models import Achievement, Asset, Buyfuel, Car, Logrun, Logtip, Npcencounter, Railroader, Template, Tip, Usefuel
+from utils.nodes import AH, pick_best_waxnode
 
 celery = Celery(__name__)
 celery.conf.broker_url = os.environ.get("CELERY_BROKER_URL", "redis://localhost:6379")

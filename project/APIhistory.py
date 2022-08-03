@@ -1,19 +1,24 @@
-from sqlalchemy.orm.session import Session
-from sqlalchemy.orm import selectinload, lazyload, joinedload
-from fastapi import FastAPI, Request, Depends, Query
-from fastapi.middleware.cors import CORSMiddleware
-from sqlalchemy.future import select
-from models import Logrun, Usefuel, Npcencounter, Logtip, Tip, Asset, Template, Buyfuel
-from sqlmodel import Session, select, or_
-from sqlalchemy import func, desc, cast, String
-from sqlalchemy.dialects.postgresql import array
-from db import engine, get_session, query_raw
+import os
+import time
 from collections import Counter
-import config, aioredis, os, time
 from datetime import datetime, timedelta
+
+import aioredis
+from fastapi import Depends, FastAPI, Query
+from fastapi.middleware.cors import CORSMiddleware
 from fastapi_cache import FastAPICache
 from fastapi_cache.backends.redis import RedisBackend
 from fastapi_cache.decorator import cache
+from sqlalchemy import String, cast, desc, func
+from sqlalchemy.dialects.postgresql import array
+from sqlalchemy.future import select
+from sqlalchemy.orm import lazyload, selectinload
+from sqlalchemy.orm.session import Session
+from sqlmodel import Session, select
+
+import config
+from db import engine, get_session, query_raw
+from models import Asset, Buyfuel, Logrun, Logtip, Npcencounter, Template, Usefuel
 
 app = FastAPI(
     title="Train Century History API",

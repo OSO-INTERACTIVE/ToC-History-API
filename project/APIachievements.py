@@ -1,16 +1,20 @@
-from sqlalchemy.orm.session import Session
-from sqlalchemy.orm import selectinload
+import os
+import time
+
+import aioredis
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
-from sqlalchemy.future import select
-from models import Railroader, Achievement
-from sqlmodel import Session, select
-from db import engine
-import config, aioredis, os, time
 from fastapi_cache import FastAPICache
 from fastapi_cache.backends.redis import RedisBackend
 from fastapi_cache.decorator import cache
-from disclog import postLog
+from sqlalchemy.future import select
+from sqlalchemy.orm import selectinload
+from sqlalchemy.orm.session import Session
+from sqlmodel import Session, select
+
+import config
+from db import engine
+from models import Achievement, Railroader
 
 app = FastAPI(
     title="Train Century Achievement API",

@@ -1,6 +1,7 @@
-from typing import Optional, List
-from sqlalchemy import Column, String, Integer
-from sqlmodel import SQLModel, Field, Relationship
+from typing import List, Optional
+
+from sqlalchemy import Column, Integer, String
+from sqlmodel import Field, Relationship, SQLModel
 
 
 class LogrunCarLink(SQLModel, table=True):

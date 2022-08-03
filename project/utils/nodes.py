@@ -1,4 +1,6 @@
-import concurrent.futures, inspect, requests, config
+import inspect
+
+import requests
 
 
 class apiException(Exception):

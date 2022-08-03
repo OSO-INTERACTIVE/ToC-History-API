@@ -1,7 +1,10 @@
-from sqlalchemy.orm import scoped_session
-from sqlalchemy.orm import sessionmaker
-from sqlmodel import Field, Session, SQLModel, create_engine, select
-import inspect, config, os
+import inspect
+import os
+
+from sqlalchemy.orm import scoped_session, sessionmaker
+from sqlmodel import Session, SQLModel, create_engine, select
+
+import config
 from disclog import postLog
 
 engine = create_engine(
