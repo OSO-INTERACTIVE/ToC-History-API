@@ -1,58 +1,45 @@
-from typing import Optional, List
-from sqlalchemy import Column, String, Integer
-from sqlmodel import SQLModel, Field, Relationship
+from typing import List, Optional
+
+from sqlalchemy import Column, Integer, String
+from sqlmodel import Field, Relationship, SQLModel
 
 
 class LogrunCarLink(SQLModel, table=True):
-    logrun_id: Optional[int] = Field(
-        default=None, foreign_key="logrun.id", primary_key=True, nullable=False
-    )
-    car_id: Optional[int] = Field(
-        default=None, foreign_key="car.id", primary_key=True, nullable=False
-    )
+    logrun_id: Optional[int] = Field(default=None, foreign_key="logrun.id", primary_key=True, nullable=False)
+    car_id: Optional[int] = Field(default=None, foreign_key="car.id", primary_key=True, nullable=False)
+
+
 class CarLoadLink(SQLModel, table=True):
-    asset_id: Optional[str] = Field(
-        default=None, foreign_key="asset.asset_id", primary_key=True, nullable=False
-    )
-    car_id: Optional[int] = Field(
-        default=None, foreign_key="car.id", primary_key=True, nullable=False
-    )
+    asset_id: Optional[str] = Field(default=None, foreign_key="asset.asset_id", primary_key=True, nullable=False)
+    car_id: Optional[int] = Field(default=None, foreign_key="car.id", primary_key=True, nullable=False)
+
+
 class CarRailcarLink(SQLModel, table=True):
-    asset_id: Optional[str] = Field(
-        default=None, foreign_key="asset.asset_id", primary_key=True, nullable=False
-    )
-    car_id: Optional[int] = Field(
-        default=None, foreign_key="car.id", primary_key=True, nullable=False
-    )    
+    asset_id: Optional[str] = Field(default=None, foreign_key="asset.asset_id", primary_key=True, nullable=False)
+    car_id: Optional[int] = Field(default=None, foreign_key="car.id", primary_key=True, nullable=False)
+
+
 class LogrunConductorLink(SQLModel, table=True):
-    asset_id: Optional[str] = Field(
-        default=None, foreign_key="asset.asset_id", primary_key=True, nullable=False
-    )
-    logrun_id: Optional[int] = Field(
-        default=None, foreign_key="logrun.id", primary_key=True, nullable=False
-    )   
+    asset_id: Optional[str] = Field(default=None, foreign_key="asset.asset_id", primary_key=True, nullable=False)
+    logrun_id: Optional[int] = Field(default=None, foreign_key="logrun.id", primary_key=True, nullable=False)
+
+
 class LogrunLocomotiveLink(SQLModel, table=True):
-    asset_id: Optional[str] = Field(
-        default=None, foreign_key="asset.asset_id", primary_key=True, nullable=False
-    )
-    logrun_id: Optional[int] = Field(
-        default=None, foreign_key="logrun.id", primary_key=True, nullable=False
-    )   
+    asset_id: Optional[str] = Field(default=None, foreign_key="asset.asset_id", primary_key=True, nullable=False)
+    logrun_id: Optional[int] = Field(default=None, foreign_key="logrun.id", primary_key=True, nullable=False)
+
+
 class LogrunTipsLink(SQLModel, table=True):
-    logtips_id: Optional[int] = Field(
-        default=None, foreign_key="logtip.id", primary_key=True, nullable=False
-    )
-    logrun_id: Optional[int] = Field(
-        default=None, foreign_key="logrun.id", primary_key=True, nullable=False
-    )
+    logtips_id: Optional[int] = Field(default=None, foreign_key="logtip.id", primary_key=True, nullable=False)
+    logrun_id: Optional[int] = Field(default=None, foreign_key="logrun.id", primary_key=True, nullable=False)
+
 
 class LogrunNpcencounterLink(SQLModel, table=True):
     npcencounter_id: Optional[int] = Field(
         default=None, foreign_key="npcencounter.id", primary_key=True, nullable=False
     )
-    logrun_id: Optional[int] = Field(
-        default=None, foreign_key="logrun.id", primary_key=True, nullable=False
-    )
+    logrun_id: Optional[int] = Field(default=None, foreign_key="logrun.id", primary_key=True, nullable=False)
+
 
 class Logrun(SQLModel, table=True):
     id: Optional[int] = Field(default=None, primary_key=True, nullable=False)
@@ -74,24 +61,18 @@ class Logrun(SQLModel, table=True):
     station_owner_reward: int
     arrive_station: str
     depart_station: str
-    
+
     locomotives: List["Asset"] = Relationship(
         link_model=LogrunLocomotiveLink,
-        sa_relationship_kwargs=dict(
-            lazy="joined"
-         ),
+        sa_relationship_kwargs=dict(lazy="joined"),
     )
     conductors: List["Asset"] = Relationship(
         link_model=LogrunConductorLink,
-        sa_relationship_kwargs=dict(
-            lazy="joined"
-         ),
+        sa_relationship_kwargs=dict(lazy="joined"),
     )
     cars: List["Car"] = Relationship(
         link_model=LogrunCarLink,
-        sa_relationship_kwargs=dict(
-            lazy="joined"
-         ),
+        sa_relationship_kwargs=dict(lazy="joined"),
     )
     logtips: List["Logtip"] = Relationship(link_model=LogrunTipsLink)
     npcs: List["Npcencounter"] = Relationship(link_model=LogrunNpcencounterLink)
@@ -104,7 +85,8 @@ class Logrun(SQLModel, table=True):
 
     fuel_type: str
     quantity: float
-    
+
+
 class Car(SQLModel, table=True):
 
     id: Optional[int] = Field(default=None, primary_key=True, nullable=False)
@@ -112,23 +94,21 @@ class Car(SQLModel, table=True):
     type: str
     loads: List["Asset"] = Relationship(
         link_model=CarLoadLink,
-        sa_relationship_kwargs=dict(
-            lazy="joined"
-         ),
+        sa_relationship_kwargs=dict(lazy="joined"),
     )
     car: List["Asset"] = Relationship(
         link_model=CarRailcarLink,
-        sa_relationship_kwargs=dict(
-            lazy="joined"
-         ),
+        sa_relationship_kwargs=dict(lazy="joined"),
     )
+
+
 class Usefuel(SQLModel, table=True):
 
     id: Optional[int] = Field(default=None, primary_key=True, nullable=False)
 
     trx_id: str
     action_seq: int
-    block_time:str
+    block_time: str
     block_timestamp: int
 
     fuel_type: str
@@ -142,7 +122,7 @@ class Buyfuel(SQLModel, table=True):
 
     trx_id: str
     action_seq: int
-    block_time:str
+    block_time: str
     block_timestamp: int
 
     fuel_type: str
@@ -151,13 +131,14 @@ class Buyfuel(SQLModel, table=True):
     century: str
     tocium_payed: float
 
+
 class Npcencounter(SQLModel, table=True):
 
     id: Optional[int] = Field(default=None, primary_key=True, nullable=False)
 
     trx_id: str
     action_seq: int
-    block_time:str
+    block_time: str
     block_timestamp: int
 
     century: str
@@ -166,14 +147,14 @@ class Npcencounter(SQLModel, table=True):
     reward: float
     reward_symbol: str
     train: str
-    
+
 
 class Logtip(SQLModel, table=True):
     id: Optional[int] = Field(default=None, primary_key=True, nullable=False)
 
     trx_id: str = Field(sa_column=Column("trx_id", String, unique=True))
     action_seq: int
-    block_time:str
+    block_time: str
     block_timestamp: int
 
     total_tips: int
@@ -181,7 +162,7 @@ class Logtip(SQLModel, table=True):
     railroader: str
     century: str
     train: str
-    
+
     tips: List["Tip"] = Relationship(back_populates="logtip", sa_relationship_kwargs=dict(lazy="joined"))
 
 
@@ -201,9 +182,9 @@ class Template(SQLModel, table=True):
     template_id: int = Field(sa_column=Column("template_id", Integer, unique=True, primary_key=True, nullable=False))
     schema_name: str
     name: str
-    cardid:int
-    rarity:str
-    img:str
+    cardid: int
+    rarity: str
+    img: str
 
     assets: List["Asset"] = Relationship(back_populates="template", sa_relationship_kwargs=dict(lazy="joined"))
 
@@ -218,7 +199,7 @@ class Template(SQLModel, table=True):
     threshold: Optional[int]
     home_region: Optional[str]
     home_regionid: Optional[int]
-    
+
     ## Locomotive Specific
     fuel: Optional[str]
     speed: Optional[int]
@@ -242,23 +223,22 @@ class Template(SQLModel, table=True):
     commodity_type2: Optional[str]
 
     ## Commodity
-    
+
     volume: Optional[int]
 
     ## Station
-    
+
     region: Optional[str]
     station_name: Optional[str]
     region_id: Optional[int]
 
 
 class Asset(SQLModel, table=True):
-    
-    asset_id: str =  Field(sa_column=Column("asset_id", String, unique=True, primary_key=True, nullable=False))
+
+    asset_id: str = Field(sa_column=Column("asset_id", String, unique=True, primary_key=True, nullable=False))
     template_id: Optional[int] = Field(default=None, foreign_key="template.template_id")
     template: Optional[Template] = Relationship(back_populates="assets", sa_relationship_kwargs=dict(lazy="joined"))
 
-    
     region: Optional[str]
     station_name: Optional[str]
     region_id: Optional[int]
@@ -294,17 +274,16 @@ class Railroader(SQLModel, table=True):
     npc_encounter: int
     otto_meets: int
     stranger_meets: int
-    
+
     achievements: List["Achievement"] = Relationship(back_populates="railroader")
 
+
 class Achievement(SQLModel, table=True):
-    
-    
+
     id: Optional[int] = Field(default=None, primary_key=True, nullable=False)
     railroader_id: Optional[int] = Field(default=None, foreign_key="railroader.id")
     railroader: Optional[Railroader] = Relationship(back_populates="achievements")
 
-    
     type: Optional[str]
     criteria: Optional[str]
     tier: Optional[int]
@@ -313,9 +292,9 @@ class Achievement(SQLModel, table=True):
     reached: Optional[bool]
     reached_date_timestamp: Optional[int]
 
+
 class Meta(SQLModel, table=True):
-    
-    
+
     id: Optional[int] = Field(default=None, primary_key=True, nullable=False)
-    
+
     current_timestamp: Optional[str]

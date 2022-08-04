@@ -8,3 +8,6 @@ project/migrations/versions/*
 *.png
 testing/*
 project/app.yaml
+poetry.lock
+venv/
+.venv/

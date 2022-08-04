@@ -1,0 +1,36 @@
+[tool.black]
+line-length = 120
+
+[tool.poetry]
+name = "toc-history-api"
+version = "0.1.8"
+description = "This project serves as a backbone for different features in the \"Train of the Century\" game on the WAX blockchain. You can also run this API locally for your own needs or host it publicly to provide it as a service for others."
+authors = ["automaqqt <florian.kuemmel@gmx.net>"]
+license = "MIT"
+
+[tool.poetry.dependencies]
+python = "^3.10"
+aiofiles = "0.6.0"
+alembic = "1.7.1"
+celery = "^5.2.2"
+fastapi = "0.65.2"
+Jinja2 = "2.11.3"
+SQLAlchemy = "1.4.35"
+redis = "3.5.3"
+requests = "2.25.1"
+asyncpg = "0.24.0"
+psycopg2-binary = "2.9.1"
+uvicorn = {version = "^0.18.2", extras = ["standard"]}
+sqlmodel = "^0.0.6"
+aioredis = "^2.0.1"
+fastapi-cache2 = "^0.1.8"
+gunicorn = "^20.1.0"
+discord-webhook = "^0.16.3"
+
+
+[tool.poetry.dev-dependencies]
+black = "^22.6.0"
+
+[build-system]
+requires = ["poetry-core>=1.0.0"]
+build-backend = "poetry.core.masonry.api"
