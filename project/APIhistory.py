@@ -12,7 +12,7 @@ from fastapi_cache.decorator import cache
 from sqlalchemy import String, cast, desc, func
 from sqlalchemy.dialects.postgresql import array
 from sqlalchemy.future import select
-from sqlalchemy.orm import lazyload, selectinload
+from sqlalchemy.orm import lazyload, joinedload, selectinload
 from sqlalchemy.orm.session import Session
 from sqlmodel import Session, select
 
@@ -516,13 +516,13 @@ async def get_raw_logrun_actions(
 
     if simple:
         transports = session.exec(
-            query.options(lazyload("cars"))
-            .options(lazyload("locomotives"))
-            .options(lazyload("conductors"))
-            .options(selectinload(Logrun.logtips))
+            query.options(joinedload("cars"))
+            .options(joinedload("locomotives"))
+            .options(joinedload("conductors"))
+            .options(joinedload(Logrun.logtips))
             .offset(offset)
             .limit(limit)
-        ).all()
+        ).unique()
 
         out = [
             {
@@ -555,13 +555,13 @@ async def get_raw_logrun_actions(
         # if resource_key == config.resource_key:
 
         transports = session.exec(
-            query.options(selectinload(Logrun.cars))
-            .options(selectinload(Logrun.locomotives))
-            .options(selectinload(Logrun.conductors))
-            .options(selectinload(Logrun.logtips))
+            query.options(joinedload(Logrun.cars))
+            .options(joinedload(Logrun.locomotives))
+            .options(joinedload(Logrun.conductors))
+            .options(joinedload(Logrun.logtips))
             .offset(offset)
             .limit(limit)
-        ).all()
+        ).unique()
 
         out = [
             {
