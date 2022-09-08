@@ -152,7 +152,7 @@ class Npcencounter(SQLModel, table=True):
 class Logtip(SQLModel, table=True):
     id: Optional[int] = Field(default=None, primary_key=True, nullable=False)
 
-    trx_id: str = Field(sa_column=Column("trx_id", String, unique=True))
+    trx_id: str
     action_seq: int
     block_time: str
     block_timestamp: int
