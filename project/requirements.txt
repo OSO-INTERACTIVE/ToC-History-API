@@ -12,6 +12,6 @@ asyncpg==0.24.0
 sqlmodel
 psycopg2-binary==2.9.1
 aioredis
-fastapi-cache2
+fastapi-cache2[redis]
 gunicorn
 discord-webhook
