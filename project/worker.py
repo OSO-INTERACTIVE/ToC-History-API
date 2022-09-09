@@ -8,7 +8,7 @@ from sqlmodel import Session
 
 import cachetool
 import config
-from db import commit_or_rollback, db_session, engine
+from db import commit_or_rollback, db_session, engine, commit_or_rollback_big
 from disclog import postLog
 from models import Achievement, Asset, Buyfuel, Car, Logrun, Logtip, Npcencounter, Railroader, Template, Tip, Usefuel
 from utils.nodes import AH, pick_best_waxnode
@@ -27,7 +27,7 @@ class SqlAlchemyTask(celery.Task):
 
 @celery.on_after_configure.connect
 def setup_periodic_tasks(sender, **kwargs):
-    sender.add_periodic_task(60.0, Atomic.s(), name="routine to keep assets+templates updated")
+    sender.add_periodic_task(120.0, Atomic.s(), name="routine to keep assets+templates updated")
 
 
 @celery.task(base=SqlAlchemyTask)
@@ -45,6 +45,11 @@ def fetchRoutine(mode, server):
 
     fetcher = getattr(AH(server=server), mode)
     after = cachetool.get_cache(f"last_{mode}")
+    if after == {}:
+        if mode == "assets":
+            after = 1659232233000
+        if mode == "templates":
+            after = 1651006034000
     page = 1
     out = []
     running = True
@@ -85,57 +90,48 @@ def scanTemplates():
 
 
 class Builder:
-    def create_new_action(self, act):
+    def create_new_action(self, session, act):
 
         blocktime = datetime.fromisoformat(act["block_time"])
 
         if act["action_trace"]["act"]["name"] == "logrun":
 
-            with Session(engine) as session:
-                full_cars = []
-                for index, railcar in enumerate(act["action_trace"]["act"]["data"]["loads"]):
-                    loads = (
-                        session.query(Asset).filter(Asset.asset_id.in_(railcar["load_ids"])).all()
-                        if railcar["load_ids"]
-                        else None
+            full_cars = []
+            for index, railcar in enumerate(act["action_trace"]["act"]["data"]["loads"]):
+                loads = session.query(Asset).join(Template).filter(Asset.asset_id.in_(railcar["load_ids"])).all() if railcar["load_ids"] else None
+                car = session.query(Asset).join(Template).filter(Asset.asset_id==railcar["railcar_asset_id"]).first() if railcar["railcar_asset_id"] else None
+                if car and loads:
+                    stm = Car(
+                        index=index, car=[car], loads=loads, type=loads[0].template.schema_name if loads else "None"
                     )
-                    car = (
-                        session.query(Asset).filter(Asset.asset_id == railcar["railcar_asset_id"]).first()
-                        if railcar["railcar_asset_id"]
-                        else None
-                    )
-                    if car and loads:
-                        stm = Car(
-                            index=index, car=[car], loads=loads, type=loads[0].template.schema_name if loads else "None"
-                        )
-                        session.add(stm)
-                        full_cars.append(stm)
-                    else:
-                        print(act["action_trace"]["trx_id"], railcar)
+                    session.add(stm)
+                    full_cars.append(stm)
+                else:
+                    print(act["action_trace"]["trx_id"], railcar)
 
-                try:
-                    session.commit()
-                except Exception as e:
-                    print(e)
-                    session.rollback()
+            try:
+                session.commit()
+            except Exception as e:
+                print(e)
+                session.rollback()
 
-                qry = (
-                    session.query(Usefuel)
-                    .filter(Usefuel.trx_id == act["action_trace"]["act"]["data"]["last_run_tx"])
-                    .first()
-                )
-                tips = session.query(Logtip).filter(Logtip.trx_id == act["action_trace"]["trx_id"]).all()
-                npcs = session.query(Npcencounter).filter(Npcencounter.trx_id == act["action_trace"]["trx_id"]).all()
-                locos = (
-                    session.query(Asset)
-                    .filter(Asset.asset_id.in_(act["action_trace"]["act"]["data"]["locomotives"]))
-                    .all()
-                )
-                cons = (
-                    session.query(Asset)
-                    .filter(Asset.asset_id.in_(act["action_trace"]["act"]["data"]["conductors"]))
-                    .all()
-                )
+            qry = (
+                session.query(Usefuel)
+                .filter(Usefuel.trx_id == act["action_trace"]["act"]["data"]["last_run_tx"])
+                .first()
+            )
+            tips = session.query(Logtip).filter(Logtip.trx_id == act["action_trace"]["trx_id"]).all()
+            npcs = session.query(Npcencounter).filter(Npcencounter.trx_id == act["action_trace"]["trx_id"]).all()
+            locos = (
+                session.query(Asset)
+                .filter(Asset.asset_id.in_(act["action_trace"]["act"]["data"]["locomotives"]))
+                .all()
+            )
+            cons = (
+                session.query(Asset)
+                .filter(Asset.asset_id.in_(act["action_trace"]["act"]["data"]["conductors"]))
+                .all()
+            )
 
             if qry:
                 fuel_type = qry.fuel_type
@@ -236,7 +232,7 @@ class Builder:
                 ],
             )
 
-    def create_new_template(self, template):
+    def create_new_template(self, session, template):
         template_skeleton = Template(
             template_id=int(template["template_id"]),
             schema_name=template["schema"]["schema_name"],
@@ -304,7 +300,7 @@ class Builder:
 
         return template_skeleton
 
-    def create_new_asset(self, asset):
+    def create_new_asset(self, session, asset):
 
         asset_skeleton = Asset(
             asset_id=str(asset["asset_id"]),
@@ -325,7 +321,7 @@ def compareTime(last, current):
 
 
 class AchievementProcessor:
-    def process_logrun(self, act, typ):
+    def process_logrun(self, session, act, typ):
         cuts = [5000, 10000, 20000, 35000, 50000]
         otto_cuts = [1, 5, 10, 18, 19]
         days = [7, 30, 90, 180, 365]
@@ -362,138 +358,116 @@ class AchievementProcessor:
             "19": "Otto's Bro",
         }
         if typ == "logrun":
+            existing = session.query(Railroader).filter(Railroader.name == act.railroader).first()
+            distance = act.distance
+            if existing:
+                existing.total_miles = existing.total_miles + distance
+                existing.total_runs = existing.total_runs + 1
 
-            with Session(engine) as session:
-                existing = session.query(Railroader).filter(Railroader.name == act.railroader).first()
-                distance = act.distance
-                if existing:
-                    existing.total_miles = existing.total_miles + distance
-                    existing.total_runs = existing.total_runs + 1
+                time_diff = compareTime(existing.last_run_stamp, act.block_timestamp)
+                if time_diff == 24.0:
+                    existing.conseq_day += 1
+                if time_diff > 24.0:
 
-                    time_diff = compareTime(existing.last_run_stamp, act.block_timestamp)
-                    if time_diff == 24.0:
-                        existing.conseq_day += 1
-                    if time_diff > 24.0:
+                    existing.conseq_day = 1
 
-                        existing.conseq_day = 1
+                existing.last_run_stamp = act.block_timestamp
+                coms_to_add = []
+                for car in act.cars:
+                    for load in car.loads:
+                        if load.template.type:
+                            if not load.template.type in coms_to_add:
+                                coms_to_add.append(str(load.template.type))
 
-                    existing.last_run_stamp = act.block_timestamp
-                    coms_to_add = []
-                    for car in act.cars:
-                        for load in car.loads:
-                            if load.template.type:
-                                if not load.template.type in coms_to_add:
-                                    coms_to_add.append(str(load.template.type))
-
-                    for typ in coms_to_add:
-                        field = f"total_miles_{typ}"
-                        old_attr = getattr(existing, field)
-                        setattr(existing, field, old_attr + distance)
-                        for cut in cuts:
-                            if old_attr + distance > cut:
-                                found = False
-                                for av in existing.achievements:
-
-                                    if typ == av.type and av.value == cut:
-                                        found = True
-                                if found == False:
-                                    new_av = Achievement(
-                                        railroader_id=existing.id,
-                                        railroader=existing,
-                                        type=typ,
-                                        criteria="miles",
-                                        tier=miles_dict[str(cut)],
-                                        value=cut,
-                                        name=miles_av_names[typ],
-                                        reached=True,
-                                        reached_date_timestamp=act.block_timestamp,
-                                    )
-                                    session.add(new_av)
-
-                    for day in days:
-                        if existing.conseq_day > day:
+                for typ in coms_to_add:
+                    field = f"total_miles_{typ}"
+                    old_attr = getattr(existing, field)
+                    setattr(existing, field, old_attr + distance)
+                    for cut in cuts:
+                        if old_attr + distance > cut:
                             found = False
                             for av in existing.achievements:
 
-                                if av.criteria == "days" and av.value == day:
+                                if typ == av.type and av.value == cut:
                                     found = True
                             if found == False:
                                 new_av = Achievement(
                                     railroader_id=existing.id,
                                     railroader=existing,
-                                    type="conseq_days",
-                                    criteria="days",
-                                    tier=days_dict[str(day)],
-                                    value=day,
-                                    name=days_av_names[str(day)],
+                                    type=typ,
+                                    criteria="miles",
+                                    tier=miles_dict[str(cut)],
+                                    value=cut,
+                                    name=miles_av_names[typ],
                                     reached=True,
                                     reached_date_timestamp=act.block_timestamp,
                                 )
                                 session.add(new_av)
-                    session.add(existing)
 
-                    try:
-                        session.commit()
-                    except Exception as e:
-                        print(e)
-                        session.rollback()
-                    return None
-                else:
-                    return commit_or_rollback(
-                        Railroader(
-                            name=act.railroader,
-                            first_run_stamp=act.block_timestamp,
-                            total_miles=distance,
-                            total_runs=1,
-                            conseq_day=1,
-                            last_run_stamp=act.block_timestamp,
-                            total_miles_pallet=0,
-                            total_miles_crate=0,
-                            total_miles_liquid=0,
-                            total_miles_gas=0,
-                            total_miles_aggregate=0,
-                            total_miles_ore=0,
-                            total_miles_granule=0,
-                            total_miles_grain=0,
-                            total_miles_perishable=0,
-                            total_miles_oversized=0,
-                            total_miles_building_materials=0,
-                            total_miles_automobile=0,
-                            total_miles_top_secret=0,
-                            achievements=[],
-                            npc_encounter=0,
-                            otto_meets=0,
-                            stranger_meets=0,
-                        )
+                for day in days:
+                    if existing.conseq_day > day:
+                        found = False
+                        for av in existing.achievements:
+
+                            if av.criteria == "days" and av.value == day:
+                                found = True
+                        if found == False:
+                            new_av = Achievement(
+                                railroader_id=existing.id,
+                                railroader=existing,
+                                type="conseq_days",
+                                criteria="days",
+                                tier=days_dict[str(day)],
+                                value=day,
+                                name=days_av_names[str(day)],
+                                reached=True,
+                                reached_date_timestamp=act.block_timestamp,
+                            )
+                            session.add(new_av)
+                session.add(existing)
+
+                try:
+                    session.commit()
+                except Exception as e:
+                    print(e)
+                    session.rollback()
+                return None
+            else:
+                return commit_or_rollback(session,
+                    Railroader(
+                        name=act.railroader,
+                        first_run_stamp=act.block_timestamp,
+                        total_miles=distance,
+                        total_runs=1,
+                        conseq_day=1,
+                        last_run_stamp=act.block_timestamp,
+                        total_miles_pallet=0,
+                        total_miles_crate=0,
+                        total_miles_liquid=0,
+                        total_miles_gas=0,
+                        total_miles_aggregate=0,
+                        total_miles_ore=0,
+                        total_miles_granule=0,
+                        total_miles_grain=0,
+                        total_miles_perishable=0,
+                        total_miles_oversized=0,
+                        total_miles_building_materials=0,
+                        total_miles_automobile=0,
+                        total_miles_top_secret=0,
+                        achievements=[],
+                        npc_encounter=0,
+                        otto_meets=0,
+                        stranger_meets=0,
                     )
+                )
 
         if typ == "npcencounter":
-            with Session(engine) as session:
                 existing = session.query(Railroader).filter(Railroader.name == act.railroader).first()
                 if existing:
                     existing.npc_encounter += 1
                     if act.npc.lower() == "otto":
                         existing.otto_meets += 1
-                        for otto in otto_cuts:
-                            if existing.otto_meets == otto:
-                                found = False
-                                for av in existing.achievements:
-
-                                    if av.criteria == "otto" and av.value == otto:
-                                        found = True
-                                if found == False:
-                                    new_av = Achievement(
-                                        railroader_id=existing.id,
-                                        railroader=existing,
-                                        type="otto",
-                                        criteria="days",
-                                        tier=otto_dict[str(otto)],
-                                        value=otto,
-                                        name=otto_av_names[str(otto)],
-                                        reached=True,
-                                        reached_date_timestamp=act.block_timestamp,
-                                    )
-                                    session.add(new_av)
+                        
 
                     if act.npc.lower() == "stranger":
                         existing.stranger_meets += 1
@@ -507,7 +481,7 @@ class AchievementProcessor:
                         session.rollback()
                     return None
                 else:
-                    return commit_or_rollback(
+                    return commit_or_rollback(session,
                         Railroader(
                             name=act.railroader,
                             first_run_stamp=act.block_timestamp,
@@ -537,16 +511,21 @@ class AchievementProcessor:
 
 
 @celery.task(base=SqlAlchemyTask)
-def writer(to_write, mode) -> str:
-    start = time.perf_counter()
+def writer(to_write,mode) -> str:
+    start=time.perf_counter()
     processor = AchievementProcessor()
     method = getattr(Builder(), f"create_new_{mode}")
-    for item in to_write:
-        new_item = method(item)
+    with Session(engine) as session:
+      session.expire_on_commit = False
+      for item in to_write:
+        new_item = method(session,item)
         if new_item:
-            commited_item = commit_or_rollback(new_item)
+            commited_item = commit_or_rollback(session,new_item)
             if commited_item and mode == "action":
-                if item["action_trace"]["act"]["name"] in ["logrun", "npcencounter"]:
-                    processor.process_logrun(commited_item, item["action_trace"]["act"]["name"])
+                if isinstance(commited_item, Logrun):
+                    processor.process_logrun(session,commited_item,"logrun")
+                if isinstance(commited_item, Npcencounter):
+                    processor.process_logrun(session,commited_item,"npcencounter")
+
 
     return f"{(time.perf_counter()-start)} for {len(to_write)} items. mode: {mode}"

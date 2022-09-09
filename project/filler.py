@@ -30,6 +30,8 @@ def filler(posrr, posm) -> str:
         except Exception as e:
             postLog(e, "error", f"{inspect.stack()[0][3]}:{inspect.stack()[0][2]}")
             time.sleep(30)
+        
+        time.sleep(3)
 
     return f"{(time.time()-start)} total time"
 
@@ -60,6 +62,9 @@ if __name__ == "__main__":
                 time.sleep(550)
                 scanTemplates()
                 time.sleep(550)
+            
+            print(f"starting from {cachetool.get_cache('last_templates')} as last template, {cachetool.get_cache(f'last_assets')} for last asset")
+
 
             if posrrr:
                 posrr = posrrr.action_seq
