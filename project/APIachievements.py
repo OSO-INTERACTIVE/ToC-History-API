@@ -75,7 +75,20 @@ async def fetch_roaders(
         out = [
             {
                 "roader_meta": roader,
-                "achievements": format_achievements(roader.achievements),
+                "achievements": [
+            {
+                "id":achiev.id,
+                "achv_id": config.achv_mapped[f"{achiev.name} {achiev.tier}"],
+                "railroader":achiev.railroader.name,
+                "type":achiev.type,
+                "criteria": achiev.criteria,
+                "tier":  achiev.tier,
+                "value": achiev.value,
+                "name":achiev.name,
+                "reached_date_timestamp": achiev.reached_date_timestamp,
+                }
+            for achiev in roader.achievements
+        ]
             }
             for roader in roaders
         ]
@@ -127,8 +140,23 @@ async def fetch_avs(
             query = query.order_by(Achievement.reached_date_timestamp)
 
         achievs = session.exec(query.offset(offset).limit(limit)).all()
+        
+        out = [
+            {
+                "id":achiev.id,
+                "achv_id": config.achv_mapped[f"{achiev.name} {achiev.tier}"],
+                "railroader":achiev.railroader.name,
+                "type":achiev.type,
+                "criteria": achiev.criteria,
+                "tier":  achiev.tier,
+                "value": achiev.value,
+                "name":achiev.name,
+                "reached_date_timestamp": achiev.reached_date_timestamp,
+                }
+            for achiev in achievs
+        ]
 
-    return {"query_time": time.perf_counter() - start, "data": format_achievements(achievs)}
+    return {"query_time": time.perf_counter() - start, "data": out}
 
 
 def format_achievements(achievs):

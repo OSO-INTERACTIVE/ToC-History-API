@@ -42,6 +42,9 @@ class LogrunNpcencounterLink(SQLModel, table=True):
 
 
 class Logrun(SQLModel, table=True):
+    class Meta:
+        load_instance = True
+        
     id: Optional[int] = Field(default=None, primary_key=True, nullable=False)
     trx_id: str
     action_seq: int

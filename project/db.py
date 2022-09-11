@@ -32,19 +32,27 @@ def get_session():
         yield session
 
 
-def commit_or_rollback(new_obj):
-    with Session(engine) as session:
+def commit_or_rollback(session,new_obj):
         try:
             session.add(new_obj)
             session.commit()
             session.refresh(new_obj)
         except Exception as e:
-            postLog(e, "warn", f"{inspect.stack()[0][3]}:{inspect.stack()[0][2]}")
+            postLog(e,"warn",f"{inspect.stack()[0][3]}:{inspect.stack()[0][2]}")
             session.rollback()
             return None
-        finally:
-            session.close()
         return new_obj
+
+def commit_or_rollback_big(session,new_objs):
+        try:
+            session.bulk_save_objects(new_objs,return_defaults=False)
+            session.commit()
+        except Exception as e:
+            postLog(e,"warn",f"{inspect.stack()[0][3]}:{inspect.stack()[0][2]}")
+            session.rollback()
+            return None
+        return new_objs
+
 
 
 def query_raw(
