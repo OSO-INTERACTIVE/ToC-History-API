@@ -516,10 +516,10 @@ async def get_raw_logrun_actions(
 
     if simple:
         transports = session.exec(
-            query.options(joinedload("cars"))
-            .options(joinedload("locomotives"))
-            .options(joinedload("conductors"))
-            .options(joinedload(Logrun.logtips))
+            query.options(lazyload('cars'))
+            .options(lazyload('locomotives'))
+            .options(lazyload('conductors'))
+            .options(selectinload(Logrun.logtips))
             .offset(offset)
             .limit(limit)
         ).unique()
