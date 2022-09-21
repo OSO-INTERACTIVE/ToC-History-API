@@ -38,7 +38,7 @@ def filler(posrr, posm) -> str:
 
 if __name__ == "__main__":
     startup = True
-    init_db()
+    time.sleep(120)
 
     while startup:
         try:
