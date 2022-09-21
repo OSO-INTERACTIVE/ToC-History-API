@@ -511,8 +511,7 @@ async def get_raw_logrun_actions(
     else:
         query = query.order_by(Logrun.block_time)
 
-    if limit > 250:
-        limit = 250
+    
 
     if simple:
         transports = session.exec(
@@ -553,6 +552,8 @@ async def get_raw_logrun_actions(
 
     else:
         # if resource_key == config.resource_key:
+        if limit > 250:
+            limit = 250
 
         transports = session.exec(
             query.options(joinedload(Logrun.cars))
