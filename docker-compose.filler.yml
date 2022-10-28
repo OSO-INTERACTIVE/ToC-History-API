@@ -1,20 +1,10 @@
 version: '3.8'
 
 services:
-  db:
-    image: postgres:13.4
-    expose:
-      - 5432
-    environment:
-      - POSTGRES_USER=postgres
-      - POSTGRES_PASSWORD=postgres
-      - POSTGRES_DB=foo
-
-  web:
+  filler:
     build: ./project
-    ports:
-      - 127.0.0.1:8001:8000
-    command: /bin/sh -c "gunicorn -w 4 -k uvicorn.workers.UvicornWorker -b 0.0.0.0:8000 main:app & sleep 30s && python3 filler.py"
+    restart: 'unless-stopped'
+    command: python3 filler.py
     volumes:
       - ./project:/usr/src/app
     environment:
@@ -23,7 +13,7 @@ services:
       - DATABASE_URL=postgresql+asyncpg://postgres:postgres@db:5432/foo
     depends_on:
       - redis
-      - db
+      - worker
 
   worker:
     build: ./project
@@ -36,9 +26,7 @@ services:
       - CELERY_RESULT_BACKEND=redis://redis:6379/0
       - DATABASE_URL=postgresql+asyncpg://postgres:postgres@db:5432/foo
     depends_on:
-      - web
       - redis
-      - db
 
   redis:
     image: redis:6-alpine
@@ -47,7 +35,7 @@ services:
   celery-beat:
     build: ./project
     restart: 'unless-stopped'
-    command: /bin/sh -c "sleep 1800s && celery -A worker beat -l info"
+    command: /bin/sh -c "celery -A worker beat -l info"
     volumes:
       - ./project/:/usr/src/app/
     environment:
@@ -56,4 +44,3 @@ services:
       - DATABASE_URL=postgresql+asyncpg://postgres:postgres@db:5432/foo
     depends_on:
       - redis
-      - db

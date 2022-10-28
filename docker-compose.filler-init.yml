@@ -1,0 +1,46 @@
+version: '3.8'
+
+services:
+  filler:
+    build: ./project
+    restart: 'unless-stopped'
+    command: python3 filler.py
+    volumes:
+      - ./project:/usr/src/app
+    environment:
+      - CELERY_BROKER_URL=redis://redis:6379/0
+      - CELERY_RESULT_BACKEND=redis://redis:6379/0
+      - DATABASE_URL=postgresql+asyncpg://postgres:postgres@db:5432/foo
+    depends_on:
+      - redis
+      - worker
+
+  worker:
+    build: ./project
+    restart: 'unless-stopped'
+    command: celery --app=worker.celery worker --loglevel=info --logfile=logs/celery.log --concurrency=20
+    volumes:
+      - ./project:/usr/src/app
+    environment:
+      - CELERY_BROKER_URL=redis://redis:6379/0
+      - CELERY_RESULT_BACKEND=redis://redis:6379/0
+      - DATABASE_URL=postgresql+asyncpg://postgres:postgres@db:5432/foo
+    depends_on:
+      - redis
+
+  redis:
+    image: redis:6-alpine
+    restart: 'unless-stopped'
+
+  celery-beat:
+    build: ./project
+    restart: 'unless-stopped'
+    command: /bin/sh -c "sleep 2800s && celery -A worker beat -l info"
+    volumes:
+      - ./project/:/usr/src/app/
+    environment:
+      - CELERY_BROKER_URL=redis://redis:6379/0
+      - CELERY_RESULT_BACKEND=redis://redis:6379/0
+      - DATABASE_URL=postgresql+asyncpg://postgres:postgres@db:5432/foo
+    depends_on:
+      - redis
