@@ -171,7 +171,7 @@ async def station_owner_dashboard_query_v3(
 @app.get("/stations", tags=["stations"])
 @cache(expire=5)
 async def get_station_aggregated_and_ordered(
-    owner: str = None, timeframe: int = 24, limit: int = Query(default=1000, lte=1000)
+    owner: str = None, timeframe: int = 24, limit: int = Query(default=1000, le=1000)
 ):
     start = time.perf_counter()
     with Session(engine) as session:
@@ -266,7 +266,7 @@ async def get_railroader_dashboard(
 @app.get("/railroaders", tags=["railroaders"])
 @cache(expire=5)
 async def get_railroader_aggregated_and_ordered(
-    before: str = None, after: str = None, limit: int = Query(default=1000, lte=1000)
+    before: str = None, after: str = None, limit: int = Query(default=1000, le=1000)
 ):
     start = time.perf_counter()
 
@@ -474,7 +474,7 @@ async def get_raw_logrun_actions(
     before_timestamp: int = None,
     after_timestamp: int = None,
     offset: int = 0,
-    limit: int = Query(default=100, lte=250),
+    limit: int = Query(default=100, le=5000),
     simple: bool = True,
     order: config.OrderChoose = config.OrderChoose.desc,
     resource_key: str = None,
@@ -642,7 +642,7 @@ async def get_raw_usefuel_actions(
     before_timestamp: int = None,
     after_timestamp: int = None,
     offset: int = 0,
-    limit: int = Query(default=1000, lte=10000),
+    limit: int = Query(default=1000, le=5000),
     order: config.OrderChoose = config.OrderChoose.desc,
 ):
     start = time.perf_counter()
@@ -675,7 +675,7 @@ async def get_raw_buyfuel_actions(
     before_timestamp: int = None,
     after_timestamp: int = None,
     offset: int = 0,
-    limit: int = Query(default=1000, lte=10000),
+    limit: int = Query(default=1000, le=10000),
     order: config.OrderChoose = config.OrderChoose.desc,
 ):
     start = time.perf_counter()
@@ -710,7 +710,7 @@ async def get_raw_npcecnounter_actions(
     before_timestamp: int = None,
     after_timestamp: int = None,
     offset: int = 0,
-    limit: int = Query(default=1000, lte=10000),
+    limit: int = Query(default=1000, le=5000),
     order: config.OrderChoose = config.OrderChoose.desc,
 ):
     start = time.perf_counter()
@@ -746,7 +746,7 @@ async def get_raw_logtips_actions(
     before_timestamp: int = None,
     after_timestamp: int = None,
     offset: int = 0,
-    limit: int = Query(default=1000, lte=10000),
+    limit: int = Query(default=1000, le=5000),
     order: config.OrderChoose = config.OrderChoose.desc,
 ):
     start = time.perf_counter()

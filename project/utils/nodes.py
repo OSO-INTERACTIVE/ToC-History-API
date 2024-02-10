@@ -149,7 +149,7 @@ class AH:
         schema_name: str = None,
         page: int = None,
         ids: str = None,
-        limit: int = 500,
+        limit: int = 1000,
         after: int = None,
         sort: str = "minted",
         order: str = "asc",

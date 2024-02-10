@@ -2,7 +2,7 @@ import os
 import time
 
 import aioredis
-from fastapi import FastAPI
+from fastapi import FastAPI, Query
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi_cache import FastAPICache
 from fastapi_cache.backends.redis import RedisBackend
@@ -54,7 +54,7 @@ async def get_info_and_api_status():
 @cache(expire=5)
 async def fetch_roaders(
     railroader: str = None,
-    limit: int = 1000,
+    limit: int = Query(default=1000, le=1000),
     offset: int = 0,
     order: config.OrderChoose = config.OrderChoose.desc,
 ):
@@ -107,7 +107,7 @@ async def fetch_avs(
     tier: int = None,
     after: int = None,
     before: int = None,
-    limit: int = 1000,
+    limit: int = Query(default=1000, le=1000),
     offset: int = 0,
     order: config.OrderChoose = config.OrderChoose.desc,
 ):

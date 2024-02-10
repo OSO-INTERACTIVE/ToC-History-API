@@ -31,7 +31,7 @@ def filler(posrr, posm) -> str:
             postLog(e, "error", f"{inspect.stack()[0][3]}:{inspect.stack()[0][2]}")
             time.sleep(30)
         
-        time.sleep(3)
+        time.sleep(2)
 
     return f"{(time.time()-start)} total time"
 
@@ -55,13 +55,6 @@ if __name__ == "__main__":
                 cachetool.set_cache(f"last_templates", 1622316652000)
                 cachetool.set_cache(f"last_assets", 1622316652000)
                 scanTemplates()
-                time.sleep(550)
-                scanTemplates()
-                time.sleep(550)
-                scanTemplates()
-                time.sleep(550)
-                scanTemplates()
-                time.sleep(550)
             
             print(f"starting from {cachetool.get_cache('last_templates')} as last template, {cachetool.get_cache(f'last_assets')} for last asset")
 

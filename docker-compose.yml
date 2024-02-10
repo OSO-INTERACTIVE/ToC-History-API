@@ -29,7 +29,7 @@ services:
   celery-beat:
     build: ./project
     restart: 'unless-stopped'
-    command: /bin/sh -c "sleep 1800s && celery -A worker beat -l info"
+    command: /bin/sh -c "sleep 1200 && celery -A worker beat -l info"
     volumes:
       - ./project/:/usr/src/app/
     environment:
