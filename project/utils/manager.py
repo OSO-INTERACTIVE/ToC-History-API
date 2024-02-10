@@ -4,8 +4,8 @@ import time
 
 from config import wanted_actions
 
-from utils.nodes import History
-
+from utils.nodes import History, pick_best_waxnode
+import random
 
 class TrainManager:
     def __init__(self, worker=1, posrr=1896127, posm=1896127):
@@ -17,24 +17,21 @@ class TrainManager:
 
     def thread(self, n):
         try:
-            resp2 = self.sess.get_actions(account_name="m.century", pos=self.posm).json()["actions"]
-
-            time.sleep(0.5)
             resp = self.sess.get_actions(account_name="rr.century", pos=self.posrr).json()["actions"]
-
             for res in resp:
                 if res["action_trace"]["act"]["name"] in wanted_actions:
                     self.out.append(res)
+            self.posrr += len(resp)
 
+            resp2 = self.sess.get_actions(account_name="m.century", pos=self.posm).json()["actions"]
             for res2 in resp2:
                 if res2["action_trace"]["act"]["name"] in ["usefuel", "buyfuel"]:
                     self.out.append(res2)
-
-            self.posrr += len(resp)
             self.posm += len(resp2)
 
         except Exception as e:
-            time.sleep(3)
+            server = random.choice(pick_best_waxnode("history", 9))
+            self.sess.server = server
 
         if len(resp) == 0:
             time.sleep(2)

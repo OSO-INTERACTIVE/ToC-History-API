@@ -6,6 +6,7 @@ from datetime import datetime
 from celery import Celery
 from sqlmodel import Session
 
+import random
 import cachetool
 import config
 from db import commit_or_rollback, db_session, engine, commit_or_rollback_big
@@ -53,7 +54,10 @@ def fetchRoutine(mode, server):
     page = 1
     out = []
     running = True
-    while running:
+    retry = 0
+    while running and retry < 40:
+        #Limit to max 40 retries.
+        print(retry)
         try:
             jst = fetcher(page=page, after=after)
             for result in jst["data"]:
@@ -73,20 +77,33 @@ def fetchRoutine(mode, server):
             page += 1
             time.sleep(0.7)
         except Exception as e:
+            retry += 1
+            if retry % 2 == 0:
+                #To make sure we try multiple endpoints in case one is behaving badly.
+                server = random.choice(pick_best_waxnode("atomic", 6))
+                fetcher = getattr(AH(server=server), mode)
             postLog(e, "warn", f"{inspect.stack()[0][3]}:{inspect.stack()[0][2]}")
-            time.sleep(10)
+            time.sleep(3)
     return out
 
 
 def scanTemplates():
-    server = pick_best_waxnode("atomic", 6)[0]
-    templates = fetchRoutine("templates", server)
-    assets = fetchRoutine("assets", server)
-
-    writer.delay(templates, "template")
-    if len(templates) > 100:
-        time.sleep(5)
-    writer.delay(assets, "asset")
+    for _ in range(10): 
+        #Loop until we've scanned all. 
+        server = pick_best_waxnode("atomic", 6)[0]
+        templates = fetchRoutine("templates", server)
+        writer.delay(templates, "template")
+        if len(templates) > 100:
+            time.sleep(5)
+        if len(templates) < 50000:
+            break 
+    for _ in range(10): 
+        #Loop until we've scanned all. 
+        server = pick_best_waxnode("atomic", 6)[0]
+        assets = fetchRoutine("assets", server)
+        writer.delay(assets, "asset")
+        if len(assets) < 50000:
+            break 
 
 
 class Builder:
